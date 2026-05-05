@@ -1,13 +1,8 @@
 import { Image, StyleSheet, Text, View } from "react-native";
+import { flags } from "../assets/flags";
 
 export default function GameCard({ game }) {
 
-  const flags ={
-    MEX: require("../assets/jogos/mexico.png"),
-    RSA: require("../assets/jogos/south africa.png"),
-    KOR: require("../assets/jogos/south korea.png"),
-    CZE: require("../assets/jogos/czech republic.png")
-  }
 
   return (
     <View style={styles.jogo}>
