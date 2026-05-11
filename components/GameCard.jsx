@@ -2,10 +2,10 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { flags } from "../assets/flags";
 
 export default function GameCard({ game }) {
-
+const jogoDoBrasil = game.sigla_casa === "BRA" || game.sigla_fora === "BRA";
 
   return (
-    <View style={styles.jogo}>
+    <View style={[styles.jogo, jogoDoBrasil && styles.jogoBrasil]}>
       <Text style={styles.grupo}>
         GRUPO {game.grupo} {game.confronto}
       </Text>
@@ -91,5 +91,13 @@ const styles = StyleSheet.create({
   subTitulo: {
     color: "#8fa3b8",
     fontSize: 12,
+  },
+
+  jogoBrasil: {
+  backgroundColor: "#123c2c",
+  borderLeftWidth: 4,
+  borderLeftColor: "#2ecc71",
+  padding: 12,
+  borderRadius: 10,
   },
 });
