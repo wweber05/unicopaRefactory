@@ -26,13 +26,14 @@ export default function App() {
 
     const jogosAgrupados = agruparPorData(jogos);
     
-    const jogosTratados = Object.keys(jogosAgrupados).map(data => {
-      return {
-        title: data,
-        data: jogosAgrupados [data]
-      }
-    });
-
+   const jogosTratados = Object.keys(jogosAgrupados).map(data => {
+  return {
+    title: data,
+    data: [...jogosAgrupados[data]].sort((a, b) =>
+      a.hora_brasilia.localeCompare(b.hora_brasilia)
+    )
+  };
+});
 
 
   return (
