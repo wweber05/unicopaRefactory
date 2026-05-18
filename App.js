@@ -1,10 +1,13 @@
 import { StyleSheet, Text, View, Image, ImageBackground, } from 'react-native';
+import { useState } from 'react';
 import GameCard from './components/GameCard';
 import dados from './assets/dados.json'
 import { SectionList } from 'react-native-web';
 
 export default function App() {
 
+  const [favoritos, setFavoritos] = useState([]);
+  
   const jogos = dados.jogos
   
   const agruparPorData = (jogos) => {
@@ -47,6 +50,14 @@ export default function App() {
 
     const dataAtual = obterDataAtual();
 
+    const alternarFavorito = (idJogo) => {
+  if (favoritos.includes(idJogo)) {
+    setFavoritos(favoritos.filter(id => id !== idJogo));
+  } else {
+    setFavoritos([...favoritos, idJogo]);
+  }
+};
+
 
   return (
     <ImageBackground style={styles.container}
@@ -77,8 +88,14 @@ export default function App() {
 
         {
           section.data.map(jogo => (
-            <GameCard key={jogo.id} game={jogo} />
-          ))
+        <GameCard
+          key={jogo.id}
+          game={jogo}
+          favorito={favoritos.includes(jogo.id)}
+          aoFavoritar={() => alternarFavorito(jogo.id)}
+        />
+      ))
+        
         }
 
       </View>
@@ -123,28 +140,21 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
 
-  data: {
-  color: '#f2cc2f',
-  fontSize: 22,
-  fontWeight: 'bold',
-  marginBottom: 10
-},
+  cardDiaAtual: {
+    borderWidth: 2,
+    borderColor: "#f2cc2f",
+    backgroundColor: "#10263a",
+  },
 
-cardDiaAtual: {
-  borderWidth: 2,
-  borderColor: "#f2cc2f",
-  backgroundColor: "#10263a",
-},
+  textoDiaAtual: {
+    color: "#f2cc2f",
+  },
 
-textoDiaAtual: {
-  color: "#f2cc2f",
-},
-
-avisoDiaAtual: {
-  color: "#ffffff",
-  fontSize: 14,
-  fontWeight: "bold",
-  marginBottom: 12,
-},
+  avisoDiaAtual: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
 
 });

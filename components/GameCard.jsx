@@ -1,11 +1,22 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { flags } from "../assets/flags";
+import react from "react";
 
-export default function GameCard({ game }) {
-const jogoDoBrasil = game.sigla_casa === "BRA" || game.sigla_fora === "BRA";
+export default function GameCard({ game, favorito, aoFavoritar }) {
+  const jogoDoBrasil = game.sigla_casa === "BRA" || game.sigla_fora === "BRA";
 
   return (
-    <View style={[styles.jogo, jogoDoBrasil && styles.jogoBrasil]}>
+        <TouchableOpacity
+      onPress={aoFavoritar}
+      style={[
+        styles.jogo,
+        jogoDoBrasil && styles.jogoBrasil,
+        favorito && styles.jogoFavorito
+      ]}
+      >
+      <Text style={styles.favorito}>
+        {favorito ? "★ Favorito" : "☆ Favoritar"}
+      </Text>
       <Text style={styles.grupo}>
         GRUPO {game.grupo} {game.confronto}
       </Text>
@@ -39,7 +50,7 @@ const jogoDoBrasil = game.sigla_casa === "BRA" || game.sigla_fora === "BRA";
           {game.cidade} • {game.pais}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -100,4 +111,19 @@ const styles = StyleSheet.create({
   padding: 12,
   borderRadius: 10,
   },
+
+  jogoFavorito: {
+  borderWidth: 2,
+  borderColor: "#f2cc2f",
+  backgroundColor: "#1a2d3f",
+},
+
+favorito: {
+  color: "#f2cc2f",
+  fontSize: 14,
+  fontWeight: "bold",
+  marginBottom: 8,
+  textAlign: "right",
+},
+
 });
