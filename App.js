@@ -1,14 +1,18 @@
-import { StyleSheet, Text, View, Image, ImageBackground, } from 'react-native';
 import { useState } from 'react';
+import { StyleSheet, Text, View, Image, ImageBackground, TouchableOpacity } from 'react-native';
 import GameCard from './components/GameCard';
-import dados from './assets/dados.json'
+import dados from './assets/dados.json';
 import { SectionList } from 'react-native-web';
 
 export default function App() {
 
   const [favoritos, setFavoritos] = useState([]);
+
+  const [grupoSelecionado, setGrupoSelecionado] = useState("TODOS");
   
   const jogos = dados.jogos
+
+  const grupos = ["TODOS", ...new Set(jogos.map(jogo => jogo.grupo))];
   
   const agruparPorData = (jogos) => {
     
@@ -27,7 +31,11 @@ export default function App() {
     }, {});
   }
 
-    const jogosAgrupados = agruparPorData(jogos);
+    const jogosFiltrados = grupoSelecionado === "TODOS"
+  ? jogos
+  : jogos.filter(jogo => jogo.grupo === grupoSelecionado);
+
+    const jogosAgrupados = agruparPorData(jogosFiltrados);
     
    const jogosTratados = Object.keys(jogosAgrupados).map(data => {
   return {
@@ -67,6 +75,28 @@ export default function App() {
       />
 
       <Text style={styles.title}>CALENDÁRIO</Text>
+
+      <View style={styles.filtros}>
+  {grupos.map(grupo => (
+    <TouchableOpacity
+      key={grupo}
+      onPress={() => setGrupoSelecionado(grupo)}
+      style={[
+        styles.botaoFiltro,
+        grupoSelecionado === grupo && styles.botaoFiltroAtivo
+      ]}
+    >
+      <Text
+        style={[
+          styles.textoFiltro,
+          grupoSelecionado === grupo && styles.textoFiltroAtivo
+        ]}
+      >
+        {grupo === "TODOS" ? "Todos" : `Grupo ${grupo}`}
+      </Text>
+    </TouchableOpacity>
+  ))}
+</View>
 
     <SectionList
   sections={jogosTratados}
@@ -156,5 +186,38 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 12,
   },
+
+  filtros: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  marginTop: 15,
+  gap: 8,
+  paddingHorizontal: 10,
+},
+
+botaoFiltro: {
+  backgroundColor: "#0c1b2a",
+  borderWidth: 1,
+  borderColor: "#1e2d3d",
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 20,
+},
+
+botaoFiltroAtivo: {
+  backgroundColor: "#f2cc2f",
+  borderColor: "#f2cc2f",
+},
+
+textoFiltro: {
+  color: "#ffffff",
+  fontSize: 14,
+  fontWeight: "bold",
+},
+
+textoFiltroAtivo: {
+  color: "#040b13",
+},
 
 });
