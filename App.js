@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, Image, ImageBackground, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, ImageBackground, TouchableOpacity, Alert } from 'react-native';
 import GameCard from './components/GameCard';
 import dados from './assets/dados.json';
 import { SectionList } from 'react-native-web';
+import { supabase } from './utils/supabase';
 
 export default function App() {
 
@@ -66,6 +67,27 @@ export default function App() {
   }
 };
 
+  const importarJogosParaBanco = async () => {
+  try {
+    const { error } = await supabase
+      .from("jogos")
+      .upsert(jogos, {
+        onConflict: "id",
+      });
+
+    if (error) {
+      Alert.alert("Erro", "Não foi possível importar os jogos.");
+      console.log(error);
+      return;
+    }
+
+    Alert.alert("Sucesso", "Jogos importados com sucesso!");
+  } catch (erro) {
+    Alert.alert("Erro", "Ocorreu um erro inesperado ao importar os jogos.");
+    console.log(erro);
+  }
+};
+
 
   return (
     <ImageBackground style={styles.container}
@@ -75,6 +97,15 @@ export default function App() {
       />
 
       <Text style={styles.title}>CALENDÁRIO</Text>
+
+      <TouchableOpacity
+  style={styles.botaoImportar}
+  onPress={importarJogosParaBanco}
+>
+  <Text style={styles.textoBotaoImportar}>
+    Importar jogos para o banco
+  </Text>
+</TouchableOpacity>
 
       <View style={styles.filtros}>
   {grupos.map(grupo => (
@@ -218,6 +249,20 @@ textoFiltro: {
 
 textoFiltroAtivo: {
   color: "#040b13",
+},
+
+botaoImportar: {
+  marginTop: 15,
+  backgroundColor: "#f2cc2f",
+  paddingVertical: 10,
+  paddingHorizontal: 18,
+  borderRadius: 20,
+},
+
+textoBotaoImportar: {
+  color: "#040b13",
+  fontSize: 14,
+  fontWeight: "bold",
 },
 
 });
