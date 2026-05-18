@@ -35,6 +35,18 @@ export default function App() {
   };
 });
 
+    const obterDataAtual = () => {
+      const hoje = new Date();
+
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+      const dia = String(hoje.getDate()).padStart(2, "0");
+
+      return `${ano}-${mes}-${dia}`;
+    };
+
+    const dataAtual = obterDataAtual();
+
 
   return (
     <ImageBackground style={styles.container}
@@ -46,27 +58,33 @@ export default function App() {
       <Text style={styles.title}>CALENDÁRIO</Text>
 
     <SectionList
-    sections={jogosTratados}
-    keyExtractor={(item, index) => item + index}
-    renderItem={() => null}
-    renderSectionHeader={({section}) => (
-      <View style={styles.card}>
+  sections={jogosTratados}
+  keyExtractor={(item, index) => item + index}
+  renderItem={() => null}
+  renderSectionHeader={({ section }) => {
+    const diaAtual = section.title === dataAtual;
 
-        <Text>{section.title}</Text>
+    return (
+      <View style={[styles.card, diaAtual && styles.cardDiaAtual]}>
+
+        <Text style={[styles.data, diaAtual && styles.textoDiaAtual]}>
+          {section.title}
+        </Text>
+
+        {diaAtual && (
+          <Text style={styles.avisoDiaAtual}>Jogos de hoje</Text>
+        )}
+
         {
           section.data.map(jogo => (
-            <GameCard key={jogo.id} game={jogo}/>
+            <GameCard key={jogo.id} game={jogo} />
           ))
         }
 
       </View>
-
-
-    ) 
-
-    }
-
-    />
+    );
+  }}
+/>
 
     </ImageBackground>
   );
@@ -103,6 +121,30 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10
-  }
+  },
+
+  data: {
+  color: '#f2cc2f',
+  fontSize: 22,
+  fontWeight: 'bold',
+  marginBottom: 10
+},
+
+cardDiaAtual: {
+  borderWidth: 2,
+  borderColor: "#f2cc2f",
+  backgroundColor: "#10263a",
+},
+
+textoDiaAtual: {
+  color: "#f2cc2f",
+},
+
+avisoDiaAtual: {
+  color: "#ffffff",
+  fontSize: 14,
+  fontWeight: "bold",
+  marginBottom: 12,
+},
 
 });
