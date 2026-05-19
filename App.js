@@ -10,8 +10,6 @@ export default function App() {
   const [jogosBanco, setJogosBanco] = useState([]);
   const [carregandoJogos, setCarregandoJogos] = useState(true);
 
-  const [favoritos, setFavoritos] = useState([]);
-
   const [grupoSelecionado, setGrupoSelecionado] = useState("TODOS");
   
   const jogos = jogosBanco;
@@ -88,12 +86,29 @@ export default function App() {
 
     const dataAtual = obterDataAtual();
 
-    const alternarFavorito = (idJogo) => {
-  if (favoritos.includes(idJogo)) {
-    setFavoritos(favoritos.filter(id => id !== idJogo));
-  } else {
-    setFavoritos([...favoritos, idJogo]);
+   const alternarFavorito = async (jogo) => {
+  const novoValorFavorito = !jogo.favorito;
+
+  const { error } = await supabase
+    .from("jogos")
+    .update({ favorito: novoValorFavorito })
+    .eq("id", jogo.id);
+
+  if (error) {
+    console.log("Erro ao atualizar favorito:", error);
+    return;
   }
+
+  setJogosBanco(jogosBanco.map(item => {
+    if (item.id === jogo.id) {
+      return {
+        ...item,
+        favorito: novoValorFavorito,
+      };
+    }
+
+    return item;
+  }));
 };
 
   const importarJogosParaBanco = async () => {
@@ -192,8 +207,9 @@ export default function App() {
               <GameCard
                 key={jogo.id}
                 game={jogo}
-                favorito={favoritos.includes(jogo.id)}
-                aoFavoritar={() => alternarFavorito(jogo.id)}
+                favorito={jogo.favorito}
+                aoFavoritar={() => alternarFavorito(jogo)}
+
               />
             ))
           }
@@ -303,6 +319,24 @@ textoBotaoImportar: {
   color: "#040b13",
   fontSize: 14,
   fontWeight: "bold",
+},
+
+cardVazio: {
+  marginTop: 30,
+  backgroundColor: "#0c1b2a",
+  width: 320,
+  borderRadius: 12,
+  padding: 20,
+  alignItems: "center",
+  borderWidth: 1,
+  borderColor: "#1e2d3d",
+},
+
+textoCardVazio: {
+  color: "#f2cc2f",
+  fontSize: 18,
+  fontWeight: "bold",
+  textAlign: "center",
 },
 
 });
