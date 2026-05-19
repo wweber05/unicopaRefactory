@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, ImageBackground, TouchableOpacity, Alert } from 'react-native';
 import GameCard from './components/GameCard';
 import dados from './assets/dados.json';
@@ -7,13 +7,42 @@ import { supabase } from './utils/supabase';
 
 export default function App() {
 
+  const [jogosBanco, setJogosBanco] = useState([]);
+  const [carregandoJogos, setCarregandoJogos] = useState(true);
+
   const [favoritos, setFavoritos] = useState([]);
 
   const [grupoSelecionado, setGrupoSelecionado] = useState("TODOS");
   
-  const jogos = dados.jogos
+  const jogos = jogosBanco;
 
   const grupos = ["TODOS", ...new Set(jogos.map(jogo => jogo.grupo))];
+
+  const buscarJogosDoBanco = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("jogos")
+      .select("*")
+      .order("data_brasilia", { ascending: true });
+
+    if (error) {
+      console.log("Erro ao buscar jogos:", error);
+      setJogosBanco([]);
+      return;
+    }
+
+    setJogosBanco(data || []);
+  } catch (erro) {
+    console.log("Erro inesperado ao buscar jogos:", erro);
+    setJogosBanco([]);
+  } finally {
+    setCarregandoJogos(false);
+  }
+};
+
+  useEffect(() => {
+  buscarJogosDoBanco();
+}, []);
   
   const agruparPorData = (jogos) => {
     
@@ -129,40 +158,51 @@ export default function App() {
   ))}
 </View>
 
-    <SectionList
-  sections={jogosTratados}
-  keyExtractor={(item, index) => item + index}
-  renderItem={() => null}
-  renderSectionHeader={({ section }) => {
-    const diaAtual = section.title === dataAtual;
+  
 
-    return (
-      <View style={[styles.card, diaAtual && styles.cardDiaAtual]}>
+    {carregandoJogos ? (
+  <View style={styles.cardVazio}>
+    <Text style={styles.textoCardVazio}>Carregando jogos...</Text>
+  </View>
+) : jogos.length === 0 ? (
+  <View style={styles.cardVazio}>
+    <Text style={styles.textoCardVazio}>Nenhum jogo carregado</Text>
+  </View>
+) : (
+  <SectionList
+    sections={jogosTratados}
+    keyExtractor={(item, index) => item.id ? String(item.id) : String(index)}
+    renderItem={() => null}
+    renderSectionHeader={({ section }) => {
+      const diaAtual = section.title === dataAtual;
 
-        <Text style={[styles.data, diaAtual && styles.textoDiaAtual]}>
-          {section.title}
-        </Text>
+      return (
+        <View style={[styles.card, diaAtual && styles.cardDiaAtual]}>
 
-        {diaAtual && (
-          <Text style={styles.avisoDiaAtual}>Jogos de hoje</Text>
-        )}
+          <Text style={[styles.data, diaAtual && styles.textoDiaAtual]}>
+            {section.title}
+          </Text>
 
-        {
-          section.data.map(jogo => (
-        <GameCard
-          key={jogo.id}
-          game={jogo}
-          favorito={favoritos.includes(jogo.id)}
-          aoFavoritar={() => alternarFavorito(jogo.id)}
-        />
-      ))
-        
-        }
+          {diaAtual && (
+            <Text style={styles.avisoDiaAtual}>Jogos de hoje</Text>
+          )}
 
-      </View>
-    );
-  }}
-/>
+          {
+            section.data.map(jogo => (
+              <GameCard
+                key={jogo.id}
+                game={jogo}
+                favorito={favoritos.includes(jogo.id)}
+                aoFavoritar={() => alternarFavorito(jogo.id)}
+              />
+            ))
+          }
+
+        </View>
+      );
+    }}
+  />
+)}
 
     </ImageBackground>
   );
